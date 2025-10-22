@@ -1,4 +1,5 @@
 import { Linking, Platform } from "react-native";
+import { Waypoint } from "../types/types";
 
 export async function obtenerRutaDirections(
   coordenadas: { latitude: number; longitude: number }[],
@@ -28,14 +29,19 @@ export async function obtenerRutaDirections(
       console.error("Error de OSRM:", data);
       return null;
     }
-
     // Obtener el orden óptimo de los waypoints intermedios
-    const orden = data.waypoints.map((wp: { location: any[]; }) => ({
-      latitude: wp.location[1],
-      longitude: wp.location[0]
+    const locations: Waypoint[] = data.waypoints.map((wp: any) => ({
+      distance: wp.distance,
+      location: wp.location,
+      name: wp.name,
+      waypoint_index: wp.waypoint_index,
     }));
+    const startLocation = locations[0];
+    const endLocation = locations[locations.length - 1];
 
-    return orden;
+    const waypoints = locations.slice(1, locations.length - 1);
+
+return { startLocation, waypoints, endLocation };
   } catch (error) {
     console.error("Error al obtener ruta OSRM:", error);
     return null;
@@ -56,11 +62,6 @@ export function abrirGoogleMaps(coordenadas: { latitude: number; longitude: numb
     .join("|");
 
   // URL para Google Maps
-  const url =
-    Platform.OS === "ios"
-      ? `http://maps.apple.com/?saddr=${start.latitude},${start.longitude}&daddr=${end.latitude},${end.longitude}${waypoints ? "&dirflg=d&waypoints=" + waypoints : ""}`
-      : `https://www.google.com/maps/dir/?api=1&origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&travelmode=driving${waypoints ? "&waypoints=" + waypoints : ""}`;
-
-      console.log(url)
+  const url = `https://www.google.com/maps/dir/?api=1&origin=${start.latitude},${start.longitude}&destination=${end.latitude},${end.longitude}&travelmode=driving${waypoints ? "&waypoints=" + waypoints : ""}`;
   Linking.openURL(url);
 }

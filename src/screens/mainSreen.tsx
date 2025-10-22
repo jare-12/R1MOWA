@@ -14,12 +14,13 @@ import {
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Ionicons } from '@expo/vector-icons';
-import { ClienteBDD } from '../types/types';
+import { ClienteBDD, Waypoint } from '../types/types';
 import { getClientesPorFecha } from '../services/supabase';
 import ClienteFormModal from '../components/clienteFormModal';
 import ClienteCard from '../components/ClienteCard';
 import ClienteFormEditModal from '../components/clienteFormEditModal';
 import { abrirGoogleMaps, obtenerRutaDirections } from '../apis/routeDirectionApi';
+import { LocationsConstants } from '../types/const';
 
 export default function MainScreen() {
   const [clientes, setClientes] = useState<ClienteBDD[]>([]);
@@ -83,6 +84,48 @@ const actualizarClienteLocal = (clienteActualizado: ClienteBDD) => {
   onRefresh();
 };
 
+async function sortClients(){
+  setIsRefreshing(true);
+  let coordenadas: { latitude: number, longitude: number }[] = [];
+
+  let clientesAux: ClienteBDD[] = clientes
+  clientesAux.forEach(cliente => {
+    coordenadas.push({
+      latitude: cliente.latitud,
+      longitude: cliente.longitud
+    });
+  });
+
+  let startLocation = { latitude: LocationsConstants.START_LOCATION.latitude, longitude: LocationsConstants.START_LOCATION.longitude };
+  let endLocation = { latitude: LocationsConstants.END_LOCATION.latitude, longitude: LocationsConstants.END_LOCATION.longitude };
+  
+  let locations = await obtenerRutaDirections(coordenadas, startLocation,endLocation);
+
+  if (!locations) {
+    console.error("No se pudo obtener la ruta");
+    setIsRefreshing(false);
+    return;
+  }
+  let { waypoints } = locations;
+
+  clientesAux.forEach((cliente, index) => {
+    const wp = waypoints[index];
+    if (wp) {
+      cliente.order = wp.waypoint_index;
+    }
+  });
+
+  let clientesOrdenados = clientesAux.sort((a, b) => {
+    let orderA = a.order ?? 0;
+    let orderB = b.order ?? 0;
+    return orderA - orderB;
+  });
+
+  setClientes(clientesOrdenados);
+
+  setIsRefreshing(false);
+}
+
 async function openMapFunction(){
   setIsRefreshing(true);
   let coordenadas: { latitude: number, longitude: number }[] = [];
@@ -93,12 +136,11 @@ async function openMapFunction(){
       longitude: cliente.longitud
     });
   });
-  const startLocation = { latitude: 39.467128271693085, longitude: -0.42699651572677905 };  // aproximado para Calle Colón
-  const endLocation = { latitude: 39.46643518465111, longitude: -0.38719235731378177 };
-
-  const ruta = await obtenerRutaDirections(coordenadas, startLocation,endLocation);
-  if (ruta) {
-    abrirGoogleMaps(ruta);
+  let startLocation = { latitude: LocationsConstants.START_LOCATION.latitude, longitude: LocationsConstants.START_LOCATION.longitude };
+  let endLocation = { latitude: LocationsConstants.END_LOCATION.latitude, longitude: LocationsConstants.END_LOCATION.longitude };
+  const waypointOrdenados = [startLocation, ...coordenadas, endLocation];
+ if (waypointOrdenados) {
+    abrirGoogleMaps(waypointOrdenados);
   } else {
     console.error("No se pudo obtener la ruta");
   }
@@ -112,9 +154,15 @@ async function openMapFunction(){
       {/* Header con selector de fecha */}
       <View style={[styles.header, isDark && styles.headerDark]}>
         <View style={[styles.headerTitle, isDark && styles.headerDark]}>
-            <Text style={[styles.title, isDark && styles.titleDark]}>Clientes</Text>
-        <Text style={[styles.titleNum, isDark && styles.titleDark]}>({clientes.length})</Text>
+          <Text style={[styles.title, isDark && styles.titleDark]}>Clientes</Text>
+          <Text style={[styles.titleNum, isDark && styles.titleDark]}>({clientes.length})</Text>
         </View>
+        <TouchableOpacity
+          style={[styles.actionBtn, styles.sortBtn]}
+          onPress={() => sortClients()}
+        >
+          <Ionicons name="repeat-outline" size={30} color="#fff" />
+        </TouchableOpacity>
         <TouchableOpacity
           style={styles.dateButton}
           onPress={() => setShowDatePicker(true)}
@@ -221,6 +269,7 @@ const styles = StyleSheet.create({
   actions: { position: 'absolute', bottom: 30, right: 20, flexDirection: 'row' },
   actionBtn: { width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', marginLeft: 12, elevation: 4, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
   mapBtn: { backgroundColor: '#34c759' },
+  sortBtn: { backgroundColor: '#007aff' },
   addBtn: { backgroundColor: '#007aff' },
   overlay: {
     ...StyleSheet.absoluteFillObject, // ocupa toda la pantalla

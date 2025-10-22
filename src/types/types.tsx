@@ -12,9 +12,23 @@ export type ClienteBDD = {
   latitud: number;
   longitud: number;
   fecha: Date;
+  order: number
 };
 
 export type Geolocation = {
   latitude: number;
   longitude: number;
 };
+
+export type LocationAddress = {
+  latitude: number;
+  longitude: number;
+  nameAddress: string; 
+};
+
+export type Waypoint = {
+  distance: number;
+  location: [number, number]; 
+  name: string;
+  waypoint_index: number;
+}

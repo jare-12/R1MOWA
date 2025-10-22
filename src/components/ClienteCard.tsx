@@ -81,7 +81,10 @@ export default function ClienteCard({ cliente, onDeleted, onEdit }: ClienteCardP
       <View style={[styles.card, { backgroundColor }]}>
         {/* Header */}
         <View style={styles.cardHeader}>
-          <Text style={[styles.name, isDark && styles.nameDark]}>{cliente.nombre}</Text>
+          <View style={styles.cardHeaderOrder}>
+            <Text style={[styles.name, isDark && styles.nameDark, { marginRight: 8 }]}>{cliente.order}</Text>
+            <Text style={[styles.name, isDark && styles.nameDark]}>{cliente.nombre}</Text>
+          </View>
           <EstadoSelector
             estado={estado}
             onChange={handleEstadoChange}
@@ -154,6 +157,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
+  },
+  cardHeaderOrder: {
+    flexDirection: 'row',
   },
   name: {
     fontSize: 17,
