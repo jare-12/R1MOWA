@@ -23,6 +23,7 @@
     "react-native-modal-datetime-picker": "^18.0.0"
   },
   "devDependencies": {
+    "@types/mapbox__polyline": "^1.0.5",
     "@types/react": "~19.1.0",
     "typescript": "~5.9.2"
   },

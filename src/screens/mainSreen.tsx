@@ -19,15 +19,16 @@ import { getClientesPorFecha } from '../services/supabase';
 import ClienteFormModal from '../components/clienteFormModal';
 import ClienteCard from '../components/ClienteCard';
 import ClienteFormEditModal from '../components/clienteFormEditModal';
+import { abrirGoogleMaps, obtenerRutaDirections } from '../apis/routeDirectionApi';
 
 export default function MainScreen() {
   const [clientes, setClientes] = useState<ClienteBDD[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editandoCliente, setEditandoCliente] = useState<ClienteBDD | null>(null);
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [rutaVisible, setRutaVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -81,7 +82,28 @@ const actualizarClienteLocal = (clienteActualizado: ClienteBDD) => {
   );
   onRefresh();
 };
-  
+
+async function openMapFunction(){
+  setIsRefreshing(true);
+  let coordenadas: { latitude: number, longitude: number }[] = [];
+
+  clientes.forEach(cliente => {
+    coordenadas.push({
+      latitude: cliente.latitud,
+      longitude: cliente.longitud
+    });
+  });
+  const startLocation = { latitude: 39.467128271693085, longitude: -0.42699651572677905 };  // aproximado para Calle Colón
+  const endLocation = { latitude: 39.46643518465111, longitude: -0.38719235731378177 };
+
+  const ruta = await obtenerRutaDirections(coordenadas, startLocation,endLocation);
+  if (ruta) {
+    abrirGoogleMaps(ruta);
+  } else {
+    console.error("No se pudo obtener la ruta");
+  }
+  setIsRefreshing(false);
+}
 
   return (
     <SafeAreaView style={[styles.container, isDark && styles.containerDark]}>
@@ -134,7 +156,7 @@ const actualizarClienteLocal = (clienteActualizado: ClienteBDD) => {
       <View style={styles.actions}>
         <TouchableOpacity
           style={[styles.actionBtn, styles.mapBtn]}
-          onPress={() => setRutaVisible(true)}
+          onPress={() => openMapFunction()}
         >
           <Ionicons name="map-outline" size={24} color="#fff" />
         </TouchableOpacity>
@@ -173,6 +195,11 @@ const actualizarClienteLocal = (clienteActualizado: ClienteBDD) => {
         }}
         onCancel={() => setShowDatePicker(false)}
       />
+      {isRefreshing && (
+        <View style={styles.overlay}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -195,4 +222,11 @@ const styles = StyleSheet.create({
   actionBtn: { width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', marginLeft: 12, elevation: 4, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
   mapBtn: { backgroundColor: '#34c759' },
   addBtn: { backgroundColor: '#007aff' },
+  overlay: {
+    ...StyleSheet.absoluteFillObject, // ocupa toda la pantalla
+    backgroundColor: 'rgba(0,0,0,0.5)', // semitransparente
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000, // asegura que esté encima
+  },
 });
