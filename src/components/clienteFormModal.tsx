@@ -90,6 +90,7 @@ export default function ClienteFormModal({
 
       const nuevoCliente: ClienteBDD = {
         estado: 'Pendiente',
+        order: undefined,
         nombre: nombre.trim(),
         numero_telefono: numero.trim(),
         direccion: direccion.trim(),

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, useColorScheme, Alert } from 'react-native';
+import { View, Text, StyleSheet, useColorScheme, Alert, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Swipeable, RectButton } from 'react-native-gesture-handler';
 import { Picker } from '@react-native-picker/picker';
@@ -10,7 +10,7 @@ import EstadoSelector from './EstadoSelector';
 interface ClienteCardProps {
   cliente: ClienteBDD;
   onDeleted: (id: number) => void;
-  onEdit: (cliente: ClienteBDD) => void; 
+  onEdit: (cliente: ClienteBDD) => void;
 }
 // ClienteCard.tsx
 
@@ -59,6 +59,11 @@ export default function ClienteCard({ cliente, onDeleted, onEdit }: ClienteCardP
     }
   };
 
+ const handleGoMap = async (cliente: ClienteBDD) => {
+  const { latitud, longitud } = cliente;
+  const url = `https://www.google.com/maps/search/?api=1&query=${latitud},${longitud}`;
+  await Linking.openURL(url);
+};
   const renderRightActions = () => (
     <RectButton style={styles.deleteButton} onPress={handleDelete}>
       <Ionicons name="trash-outline" size={24} color="#fff" />
@@ -118,15 +123,24 @@ export default function ClienteCard({ cliente, onDeleted, onEdit }: ClienteCardP
           </View>
         )}
         
-        {/* Disponibilidad */}
-        {cliente.disponibilidad && (
-          <View style={styles.infoRow}>
-            <Ionicons name="time-outline" size={16} color={isDark ? '#bbb' : '#777'} />
-            <Text style={[styles.detail, isDark && styles.detailDark]}>
-              {' '}{cliente.disponibilidad}
-            </Text>
-          </View>
-        )}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          {/* Disponibilidad */}
+          {cliente.disponibilidad && (
+            <View style={styles.infoRow}>
+              <Ionicons name="time-outline" size={16} color={isDark ? '#bbb' : '#777'} />
+              <Text style={[styles.detail, isDark && styles.detailDark]}>
+                {' '}{cliente.disponibilidad}
+              </Text>
+            </View>
+          )}
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.mapBtn]}
+            onPress={() => handleGoMap(cliente)}
+          >
+            <Ionicons name="arrow-forward" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+        
       </View>
     </Swipeable>
   );
@@ -144,6 +158,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 2,
   },
+  actionBtn: { width: 40, height: 40, borderRadius: 28, justifyContent: 'center', alignItems: 'center', marginLeft: 12, elevation: 4, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
+  mapBtn: { backgroundColor: '#000000ff' },
   editButton: {
   backgroundColor: '#2196F3',
   justifyContent: 'center',
