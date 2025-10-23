@@ -88,7 +88,14 @@ async function sortClients(){
   setIsRefreshing(true);
   let coordenadas: { latitude: number, longitude: number }[] = [];
 
-  let clientesAux: ClienteBDD[] = clientes
+  let clientesAux: ClienteBDD[] = clientes.filter(
+    c => c.estado !== 'Instalado' && c.estado !== 'Ausente'
+  );
+
+  let clientesInstalados = clientes.filter(
+    c => c.estado === 'Instalado' || c.estado === 'Ausente'
+  );
+  
   clientesAux.forEach(cliente => {
     coordenadas.push({
       latitude: cliente.latitud,
@@ -121,7 +128,9 @@ async function sortClients(){
     return orderA - orderB;
   });
 
-  setClientes(clientesOrdenados);
+  let clientesFinales = [...clientesOrdenados, ...clientesInstalados];
+
+  setClientes(clientesFinales);
 
   setIsRefreshing(false);
 }
@@ -130,12 +139,17 @@ async function openMapFunction(){
   setIsRefreshing(true);
   let coordenadas: { latitude: number, longitude: number }[] = [];
 
-  clientes.forEach(cliente => {
+  let clientesAux: ClienteBDD[] = clientes.filter(
+    c => c.estado !== 'Instalado' && c.estado !== 'Ausente'
+  );
+  
+  clientesAux.forEach(cliente => {
     coordenadas.push({
       latitude: cliente.latitud,
       longitude: cliente.longitud
     });
   });
+
   let startLocation = { latitude: LocationsConstants.START_LOCATION.latitude, longitude: LocationsConstants.START_LOCATION.longitude };
   let endLocation = { latitude: LocationsConstants.END_LOCATION.latitude, longitude: LocationsConstants.END_LOCATION.longitude };
   const waypointOrdenados = [startLocation, ...coordenadas, endLocation];
