@@ -11,6 +11,7 @@
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
     "@mapbox/polyline": "^1.2.1",
+    "@react-native-community/datetimepicker": "^8.5.0",
     "@react-native-picker/picker": "^2.11.4",
     "@supabase/supabase-js": "^2.76.1",
     "expo": "~54.0.17",

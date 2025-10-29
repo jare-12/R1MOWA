@@ -10,6 +10,7 @@ import {
   Alert,
   ScrollView,
   KeyboardAvoidingView,
+  useColorScheme,
 } from 'react-native';
 import * as Location from 'expo-location';
 import { Picker } from '@react-native-picker/picker';
@@ -23,7 +24,7 @@ interface ClienteFormModalProps {
   onClose: () => void;
   onClienteActualizado: (nuevoCliente: ClienteBDD) => void;
 }
-
+ 
 export default function ClienteFormEditModal({
   visible,
   cliente,
@@ -41,7 +42,8 @@ export default function ClienteFormEditModal({
   const [fecha, setFecha] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const scheme = useColorScheme();
+  const isDark = scheme === 'dark';
   const geocodearDireccion = async (
     fullAddress: string
   ): Promise<{ latitude: number; longitude: number }> => {
@@ -104,6 +106,7 @@ export default function ClienteFormEditModal({
         estimacion: estimacion.trim(),
         latitud: latitude,
         longitud: longitude,
+        order: cliente.order,
         fecha,
       };
 
@@ -211,7 +214,7 @@ export default function ClienteFormEditModal({
               <Text style={styles.label}>Fecha</Text>
               <TouchableOpacity
                 style={styles.input}
-                onPress={() => setShowDatePicker(true)}
+                onPress={() => {setShowDatePicker(true); console.log("pulsado", showDatePicker)}}
                 disabled={loading}
               >
                 <Text>
@@ -227,6 +230,7 @@ export default function ClienteFormEditModal({
             <DateTimePickerModal
               isVisible={showDatePicker}
               mode="date"
+              textColor = {isDark ? '#fff' : '#000000ff'}
               onConfirm={handleConfirmDate}
               onCancel={() => setShowDatePicker(false)}
             />
@@ -242,6 +246,7 @@ export default function ClienteFormEditModal({
                     setDisponibilidad(val as 'Mañana' | 'Tarde' | 'NC')
                   }
                   enabled={!loading}
+                  mode="dropdown"
                 >
                   <Picker.Item label="Mañana" value="Mañana" />
                   <Picker.Item label="Tarde" value="Tarde" />
