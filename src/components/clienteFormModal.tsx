@@ -10,6 +10,7 @@ import {
   Alert,
   ScrollView,
   KeyboardAvoidingView,
+  useColorScheme,
 } from 'react-native';
 import * as Location from 'expo-location';
 import { Picker } from '@react-native-picker/picker';
@@ -39,7 +40,8 @@ export default function ClienteFormModal({
   const [fecha, setFecha] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const scheme = useColorScheme();
+  const isDark = scheme === 'dark';
   const geocodearDireccion = async (
   fullAddress: string
 ): Promise<{ latitude: number; longitude: number }> => {
@@ -91,7 +93,6 @@ export default function ClienteFormModal({
 
       const nuevoCliente: ClienteBDD = {
         estado: 'Pendiente',
-        order: undefined,
         nombre: nombre.trim(),
         numero_telefono: numero.trim(),
         direccion: direccion.trim(),
@@ -222,6 +223,7 @@ export default function ClienteFormModal({
               isVisible={showDatePicker}
               mode="date"
               onConfirm={handleConfirmDate}
+              textColor = {isDark ? '#fff' : '#000000ff'}
               onCancel={() => setShowDatePicker(false)}
             />
 

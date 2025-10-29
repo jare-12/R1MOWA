@@ -107,7 +107,6 @@ export default function ClienteFormEditModal({
         estimacion: estimacion.trim(),
         latitud: latitude,
         longitud: longitude,
-        order: cliente.order,
         fecha,
       };
 

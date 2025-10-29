@@ -12,7 +12,7 @@ export type ClienteBDD = {
   latitud: number;
   longitud: number;
   fecha: Date;
-  order: number | undefined
+  order?: number | undefined
 };
 
 export type Geolocation = {
