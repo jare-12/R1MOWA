@@ -20,7 +20,7 @@ import ClienteFormModal from '../components/clienteFormModal';
 import ClienteCard from '../components/ClienteCard';
 import ClienteFormEditModal from '../components/clienteFormEditModal';
 import { abrirGoogleMaps, obtenerRutaDirections } from '../apis/routeDirectionApi';
-import { LocationsConstants } from '../types/const';
+import { Colors, LocationsConstants } from '../types/const';
 
 export default function MainScreen() {
   const [clientes, setClientes] = useState<ClienteBDD[]>([]);
@@ -175,7 +175,7 @@ async function openMapFunction(){
           style={[styles.actionBtn, styles.sortBtn]}
           onPress={() => sortClients()}
         >
-          <Ionicons name="repeat-outline" size={30} color="#fff" />
+          <Ionicons name="footsteps-outline" size={30} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.dateButton}
@@ -281,10 +281,10 @@ const styles = StyleSheet.create({
   loaderWrap: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   list: { padding: 16, paddingBottom: 100 },
   actions: { position: 'absolute', bottom: 30, right: 20, flexDirection: 'row' },
-  actionBtn: { width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', marginLeft: 12, elevation: 4, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
-  mapBtn: { backgroundColor: '#34c759' },
-  sortBtn: { backgroundColor: '#007aff' },
-  addBtn: { backgroundColor: '#007aff' },
+  actionBtn: { width: 56, height: 56, borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginLeft: 12, elevation: 4, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
+mapBtn: { backgroundColor:  Colors.primary},    // Marrón medio oscuro, cálido
+sortBtn: { backgroundColor: Colors.primary },   // Marrón más claro, pastel elegante
+addBtn: { backgroundColor: Colors.secondary },    // Marrón suave pastel
   overlay: {
     ...StyleSheet.absoluteFillObject, // ocupa toda la pantalla
     backgroundColor: 'rgba(0,0,0,0.5)', // semitransparente

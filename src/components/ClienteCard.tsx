@@ -6,6 +6,7 @@ import { Picker } from '@react-native-picker/picker';
 import { ClienteBDD } from '../types/types';
 import { deleteClienteFromSupabase, updateClienteEstado } from '../services/supabase';
 import EstadoSelector from './EstadoSelector';
+import { Colors } from '../types/const';
 
 interface ClienteCardProps {
   cliente: ClienteBDD;
@@ -152,16 +153,16 @@ const styles = StyleSheet.create({
     padding: 18,
     marginBottom: 16,
     backgroundColor: '#fff',
-    shadowColor: '#000',
+    shadowColor: '#000000ff',
     shadowOpacity: 0.06,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
     elevation: 2,
   },
   actionBtn: { width: 40, height: 40, borderRadius: 28, justifyContent: 'center', alignItems: 'center', marginLeft: 12, elevation: 4, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
-  mapBtn: { backgroundColor: '#000000ff' },
+  mapBtn: { backgroundColor: Colors.primary},
   editButton: {
-  backgroundColor: '#2196F3',
+  backgroundColor: Colors.accent,
   justifyContent: 'center',
   alignItems: 'center',
   width: 64,
@@ -200,7 +201,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   deleteButton: {
-    backgroundColor: '#ff3b30',
+    backgroundColor: Colors.danger,
     justifyContent: 'center',
     alignItems: 'center',
     width: 64,

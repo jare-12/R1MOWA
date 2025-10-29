@@ -17,6 +17,7 @@ import { Picker } from '@react-native-picker/picker';
 import { ClienteBDD } from '../types/types';
 import { updateClienteInSupabase } from '../services/supabase';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { Colors } from '../types/const';
 
 interface ClienteFormModalProps {
   visible: boolean;
@@ -271,7 +272,7 @@ export default function ClienteFormEditModal({
           {/* BOTONES ABAJO */}
           <View style={styles.modalButtons}>
             <TouchableOpacity
-              style={[styles.button, { backgroundColor: '#4CAF50' }]}
+              style={[styles.button, { backgroundColor: Colors.light }]}
               onPress={handleEnviarCliente}
               disabled={loading}
             >
@@ -281,7 +282,7 @@ export default function ClienteFormEditModal({
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.button, { backgroundColor: '#F44336' }]}
+              style={[styles.button, { backgroundColor: Colors.danger }]}
               onPress={() => !loading && onClose()}
               disabled={loading}
             >
@@ -312,7 +313,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     paddingVertical: 12,
-    backgroundColor: '#2196F3',
+    backgroundColor: Colors.accent,
     color: '#fff',
     marginBottom: 10,
   },
