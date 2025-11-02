@@ -105,8 +105,8 @@ export default function ClienteFormModal({
         fecha,
       };
 
-      await addClienteToSupabase(nuevoCliente);
-      onClienteAgregado(nuevoCliente);
+      let clienteBBDD = await addClienteToSupabase(nuevoCliente);
+      onClienteAgregado(clienteBBDD);
 
       // Limpiar campos y cerrar
       setNombre('');
