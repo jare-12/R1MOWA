@@ -109,7 +109,7 @@ export default function ClienteFormEditModal({
         longitude: longitude,
         fecha,
       };
-
+      console.log(ClienteActualizado.disponibilidad)
       if (cliente.id === undefined) {
         throw new Error('El cliente no tiene un ID definido.');
       }

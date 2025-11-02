@@ -36,7 +36,7 @@ export default function MainScreen() {
 
   const scheme = useColorScheme();
   const isDark = scheme === 'dark';
-  const optimizer = new RouteOptimizer({ penaltyK: 500, twoOptMaxIter: 200, debug: true });
+  const optimizer = new RouteOptimizer({ penaltyK: 275, twoOptMaxIter: 500, debug: false });
   const startLocation = { latitude: LocationsConstants.START_LOCATION.latitude, longitude: LocationsConstants.START_LOCATION.longitude };
   const endLocation = { latitude: LocationsConstants.END_LOCATION.latitude, longitude: LocationsConstants.END_LOCATION.longitude };
 
@@ -66,12 +66,22 @@ export default function MainScreen() {
   const handleNuevo = (cliente: ClienteBDD) =>
     setClientes((prev) => [cliente, ...prev]);
 
+  const actualizarClienteEstadoLocal = (clienteActualizado: ClienteBDD) => {
+  setClientes((prev) =>
+    prev.map((c) => (c.id === clienteActualizado.id ? clienteActualizado : c))
+  );
+};
+
+
   const renderCliente = ({ item }: { item: ClienteBDD }) => (
     <ClienteCard
       cliente={item}
       onEdit={() => {
         setEditandoCliente(item);
         setEditModalVisible(true);
+      }}
+      onChangeState={(c)=>{
+        actualizarClienteEstadoLocal(c);
       }}
       onDeleted={(id) => setClientes((prev) => prev.filter((c) => c.id !== id))}
     />
@@ -85,7 +95,6 @@ const actualizarClienteLocal = (clienteActualizado: ClienteBDD) => {
   setClientes((prev) =>
     prev.map((c) => (c.id === clienteActualizado.id ? clienteActualizado : c))
   );
-  onRefresh();
 };
 
 async function sortClients(){

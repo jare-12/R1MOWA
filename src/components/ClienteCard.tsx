@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, useColorScheme, Alert, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Swipeable, RectButton } from 'react-native-gesture-handler';
-import { Picker } from '@react-native-picker/picker';
 import { ClienteBDD } from '../types/types';
 import { deleteClienteFromSupabase, updateClienteEstado } from '../services/supabase';
 import EstadoSelector from './EstadoSelector';
@@ -12,6 +11,7 @@ interface ClienteCardProps {
   cliente: ClienteBDD;
   onDeleted: (id: number) => void;
   onEdit: (cliente: ClienteBDD) => void;
+  onChangeState: (cliente: ClienteBDD) => void;
 }
 // ClienteCard.tsx
 
@@ -22,7 +22,7 @@ const estadoColors: Record<string, string> = {
   Ausente: '#FDECEA',     // rojo claro
 };
 
-export default function ClienteCard({ cliente, onDeleted, onEdit }: ClienteCardProps) {
+export default function ClienteCard({ cliente, onDeleted, onEdit, onChangeState }: ClienteCardProps) {
   const isDark = useColorScheme() === 'dark';
   const [estado, setEstado] = useState<ClienteBDD['estado']>(cliente.estado);
 
@@ -50,9 +50,11 @@ export default function ClienteCard({ cliente, onDeleted, onEdit }: ClienteCardP
   };
 
   const handleEstadoChange = async (nuevoEstado: ClienteBDD['estado']) => {
+    
     setEstado(nuevoEstado);
     try {
-      await updateClienteEstado(cliente.id!, nuevoEstado);
+      let updateClienteEstadoBD =  await updateClienteEstado(cliente.id!, nuevoEstado);
+      onChangeState(updateClienteEstadoBD);
     } catch (e) {
       console.error('Error actualizando estado:', e);
       Alert.alert('Error', 'No se pudo actualizar el estado');

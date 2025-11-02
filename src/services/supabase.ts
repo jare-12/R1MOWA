@@ -97,15 +97,18 @@ export async function getClientesPorFecha(date: Date): Promise<ClienteBDD[]> {
 export async function updateClienteEstado(
   id: number,
   estado: ClienteBDD['estado']
-): Promise<void> {
-  const { error } = await supabase
+): Promise<ClienteBDD>  {
+  const { data, error } = await supabase
     .from('Cliente')
     .update({ estado })
-    .eq('id', id);
+    .eq('id', id)
+    .select()
+    .single();;
 
   if (error) {
     throw new Error(error.message);
   }
+  return data as ClienteBDD;
 }
 
 export async function updateClienteInSupabase(
