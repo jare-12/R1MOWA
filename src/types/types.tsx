@@ -9,8 +9,8 @@ export type ClienteBDD = {
   disponibilidad: 'Mañana' | 'Tarde' | 'NC';
   hora?: Date;
   estimacion?: string;
-  latitud: number;
-  longitud: number;
+  latitude: number;
+  longitude: number;
   fecha: Date;
   order?: number | undefined
 };

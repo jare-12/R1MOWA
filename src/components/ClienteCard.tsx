@@ -61,8 +61,8 @@ export default function ClienteCard({ cliente, onDeleted, onEdit }: ClienteCardP
   };
 
  const handleGoMap = async (cliente: ClienteBDD) => {
-  const { latitud, longitud } = cliente;
-  const url = `https://www.google.com/maps/search/?api=1&query=${latitud},${longitud}`;
+  const { latitude, longitude } = cliente;
+  const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
   await Linking.openURL(url);
 };
   const renderRightActions = () => (

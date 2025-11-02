@@ -1,7 +1,7 @@
 import { Linking, Platform } from "react-native";
 import { Waypoint } from "../types/types";
 
-export async function obtenerRutaDirections(
+export async function OrdenarRutaPorDirecciones(
   coordenadas: { latitude: number; longitude: number }[],
   startLocation: { latitude: number; longitude: number },
   endLocation: { latitude: number; longitude: number }

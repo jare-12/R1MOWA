@@ -19,8 +19,9 @@ import { getClientesPorFecha } from '../services/supabase';
 import ClienteFormModal from '../components/clienteFormModal';
 import ClienteCard from '../components/ClienteCard';
 import ClienteFormEditModal from '../components/clienteFormEditModal';
-import { abrirGoogleMaps, obtenerRutaDirections } from '../apis/routeDirectionApi';
+import { abrirGoogleMaps, OrdenarRutaPorDirecciones } from '../apis/OrdenarRutaPorDirecciones';
 import { Colors, LocationsConstants } from '../types/const';
+import { RouteOptimizer } from '../apis/RouteOptimizerOptions';
 
 export default function MainScreen() {
   const [clientes, setClientes] = useState<ClienteBDD[]>([]);
@@ -35,7 +36,10 @@ export default function MainScreen() {
 
   const scheme = useColorScheme();
   const isDark = scheme === 'dark';
-  
+  const optimizer = new RouteOptimizer({ penaltyK: 500, twoOptMaxIter: 200, debug: true });
+  const startLocation = { latitude: LocationsConstants.START_LOCATION.latitude, longitude: LocationsConstants.START_LOCATION.longitude };
+  const endLocation = { latitude: LocationsConstants.END_LOCATION.latitude, longitude: LocationsConstants.END_LOCATION.longitude };
+
   const loadClientes = useCallback(async () => {
     try {
       const data = await getClientesPorFecha(selectedDate);
@@ -86,7 +90,7 @@ const actualizarClienteLocal = (clienteActualizado: ClienteBDD) => {
 
 async function sortClients(){
   setIsRefreshing(true);
-  let coordenadas: { latitude: number, longitude: number }[] = [];
+  // let coordenadas: { latitude: number, longitude: number }[] = [];
 
   let clientesAux: ClienteBDD[] = clientes.filter(
     c => c.estado !== 'Instalado' && c.estado !== 'Ausente'
@@ -96,37 +100,36 @@ async function sortClients(){
     c => c.estado === 'Instalado' || c.estado === 'Ausente'
   );
   
-  clientesAux.forEach(cliente => {
-    coordenadas.push({
-      latitude: cliente.latitud,
-      longitude: cliente.longitud
-    });
-  });
+  // clientesAux.forEach(cliente => {
+  //   coordenadas.push({
+  //     latitude: cliente.latitude,
+  //     longitude: cliente.longitude
+  //   });
+  // });
 
-  let startLocation = { latitude: LocationsConstants.START_LOCATION.latitude, longitude: LocationsConstants.START_LOCATION.longitude };
-  let endLocation = { latitude: LocationsConstants.END_LOCATION.latitude, longitude: LocationsConstants.END_LOCATION.longitude };
-  
-  let locations = await obtenerRutaDirections(coordenadas, startLocation,endLocation);
+  let clientesOrdenados = await optimizer.optimize(clientesAux, startLocation, endLocation);
 
-  if (!locations) {
-    console.error("No se pudo obtener la ruta");
-    setIsRefreshing(false);
-    return;
-  }
-  let { waypoints } = locations;
+  //let locations = await OrdenarRutaPorDirecciones(coordenadas, startLocation,endLocation);
 
-  clientesAux.forEach((cliente, index) => {
-    const wp = waypoints[index];
-    if (wp) {
-      cliente.order = wp.waypoint_index;
-    }
-  });
+  // if (!locations) {
+  //   console.error("No se pudo obtener la ruta");
+  //   setIsRefreshing(false);
+  //   return;
+  // }
+  // let { waypoints } = locations;
 
-  let clientesOrdenados = clientesAux.sort((a, b) => {
-    let orderA = a.order ?? 0;
-    let orderB = b.order ?? 0;
-    return orderA - orderB;
-  });
+  // clientesAux.forEach((cliente, index) => {
+  //   const wp = waypoints[index];
+  //   if (wp) {
+  //     cliente.order = wp.waypoint_index;
+  //   }
+  // });
+
+  // let clientesOrdenados = clientesAux.sort((a, b) => {
+  //   let orderA = a.order ?? 0;
+  //   let orderB = b.order ?? 0;
+  //   return orderA - orderB;
+  // });
 
   let clientesFinales = [...clientesOrdenados, ...clientesInstalados];
 
@@ -145,13 +148,11 @@ async function openMapFunction(){
   
   clientesAux.forEach(cliente => {
     coordenadas.push({
-      latitude: cliente.latitud,
-      longitude: cliente.longitud
+      latitude: cliente.latitude,
+      longitude: cliente.longitude
     });
   });
 
-  let startLocation = { latitude: LocationsConstants.START_LOCATION.latitude, longitude: LocationsConstants.START_LOCATION.longitude };
-  let endLocation = { latitude: LocationsConstants.END_LOCATION.latitude, longitude: LocationsConstants.END_LOCATION.longitude };
   const waypointOrdenados = [startLocation, ...coordenadas, endLocation];
  if (waypointOrdenados) {
     abrirGoogleMaps(waypointOrdenados);

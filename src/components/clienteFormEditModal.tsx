@@ -105,16 +105,16 @@ export default function ClienteFormEditModal({
         producto: producto.trim(),
         disponibilidad,
         estimacion: estimacion.trim(),
-        latitud: latitude,
-        longitud: longitude,
+        latitude: latitude,
+        longitude: longitude,
         fecha,
       };
 
       if (cliente.id === undefined) {
         throw new Error('El cliente no tiene un ID definido.');
       }
-      await updateClienteInSupabase(cliente.id, ClienteActualizado);
-      onClienteActualizado(ClienteActualizado);
+      let clienteActualizadoBD = await updateClienteInSupabase(cliente.id, ClienteActualizado);
+      onClienteActualizado(clienteActualizadoBD);
 
       // Limpiar campos y cerrar
       setNombre('');

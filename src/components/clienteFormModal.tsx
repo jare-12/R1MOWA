@@ -45,7 +45,6 @@ export default function ClienteFormModal({
   const geocodearDireccion = async (
   fullAddress: string
 ): Promise<{ latitude: number; longitude: number }> => {
-  console.log('Geocodeando:', fullAddress);
 
   // 1️⃣ Solicitar permisos
   const { status } = await Location.requestForegroundPermissionsAsync();
@@ -100,8 +99,8 @@ export default function ClienteFormModal({
         producto: producto.trim(),
         disponibilidad,
         estimacion: estimacion.trim(),
-        latitud: latitude,
-        longitud: longitude,
+        latitude: latitude,
+        longitude: longitude,
         fecha,
       };
 
