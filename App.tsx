@@ -1,17 +1,19 @@
 import React from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import MainScreen from './src/screens/mainSreen';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { StyleSheet} from 'react-native';
+import MainScreen from './src/screens/MainScreen';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from '@react-navigation/native';
+import LoginScreen from './src/screens/LoginScreen';
 
+const Stack = createNativeStackNavigator();
 export default function App() {
   return (
-    <>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <MainScreen />
-        <StatusBar style="auto" />
-      </GestureHandlerRootView>
-    </>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false, gestureEnabled: false }}>
+        <Stack.Screen name="LoginScreen" component={LoginScreen} />
+        <Stack.Screen name="MainScreen" component={MainScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 

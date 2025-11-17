@@ -22,6 +22,7 @@ import { abrirGoogleMaps } from '../apis/OrdenarRutaPorDirecciones';
 import { Colors, LocationsConstants } from '../types/const';
 import { RouteOptimizer } from '../apis/RouteOptimizerOptions';
 import { CrossPlatformDatePicker } from '../components/CrossPlatformDatePicker';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function MainScreen() {
   const [clientes, setClientes] = useState<ClienteBDD[]>([]);
@@ -141,6 +142,7 @@ async function openMapFunction(){
 }
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaView style={[styles.container, isDark && styles.containerDark]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
@@ -223,6 +225,7 @@ async function openMapFunction(){
         </View>
       )}
     </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 
