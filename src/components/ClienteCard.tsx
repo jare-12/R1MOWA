@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, useColorScheme, Alert, TouchableOpacity, Linking } from 'react-native';
+import { View, Text, StyleSheet, useColorScheme, Alert, TouchableOpacity, Linking, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Swipeable, RectButton } from 'react-native-gesture-handler';
 import { ClienteBDD } from '../types/types';
@@ -27,6 +27,18 @@ export default function ClienteCard({ cliente, onDeleted, onEdit, onChangeState 
   const [estado, setEstado] = useState<ClienteBDD['estado']>(cliente.estado);
 
   const handleDelete = async () => {
+  if (Platform.OS === 'web') {
+    const confirm = window.confirm(`¿Seguro que quieres eliminar a ${cliente.nombre}?`);
+    if (!confirm) return;
+
+    try {
+      await deleteClienteFromSupabase(cliente.id!);
+      onDeleted(cliente.id!);
+    } catch (e) {
+      console.error('Error al eliminar:', e);
+      alert('No se pudo eliminar el cliente');
+    }
+  } else {
     Alert.alert(
       'Confirmar eliminación',
       `¿Seguro que quieres eliminar a ${cliente.nombre}?`,
@@ -47,7 +59,8 @@ export default function ClienteCard({ cliente, onDeleted, onEdit, onChangeState 
         },
       ]
     );
-  };
+  }
+};
 
   const handleEstadoChange = async (nuevoEstado: ClienteBDD['estado']) => {
     
@@ -110,8 +123,16 @@ export default function ClienteCard({ cliente, onDeleted, onEdit, onChangeState 
         {cliente.numero_telefono && (
           <View style={styles.infoRow}>
             <Ionicons name="call-outline" size={16} color={isDark ? '#bbb' : '#777'} />
-            <Text style={[styles.detail, isDark && styles.detailDark]}>
-              {' '}{cliente.numero_telefono}
+            <Text>{' '}</Text>
+            <Text
+              style={[
+                styles.detail,
+                isDark && styles.detailDark,
+                { textDecorationLine: 'underline', cursor: 'pointer' }
+              ]}
+              onPress={() => Linking.openURL(`tel:${cliente.numero_telefono}`)}
+            >
+              {cliente.numero_telefono}
             </Text>
           </View>
         )}

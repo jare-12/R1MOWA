@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderRadius: 8,
         height: 'auto',
-        width: '30%',
+        width: '45%',
         overflow: 'hidden',
         alignSelf:"center"
     },

@@ -161,7 +161,7 @@ export default function ClienteFormEditModal({
             </View>
 
             <View style={styles.formGroup}>
-              <Text style={styles.label}>Dirección</Text>
+              <Text style={styles.label}>Dirección *Importante código postal</Text>
               <TextInput
                 style={styles.input}
                 value={direccion}
