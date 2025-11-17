@@ -2,7 +2,7 @@
   "expo": {
     "name": "R1mowaOptimization",
     "slug": "R1mowaOptimization",
-    "version": "1.6.0",
+    "version": "2.0.1",
     "orientation": "portrait",
     "platforms": ["ios", "android", "web"],
     "icon": "./assets/icon.png",
