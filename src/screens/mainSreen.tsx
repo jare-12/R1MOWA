@@ -12,16 +12,16 @@ import {
   useColorScheme,
   RefreshControl,
 } from 'react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Ionicons } from '@expo/vector-icons';
-import { ClienteBDD, Waypoint } from '../types/types';
+import { ClienteBDD } from '../types/types';
 import { getClientesPorFecha } from '../services/supabase';
 import ClienteFormModal from '../components/clienteFormModal';
 import ClienteCard from '../components/ClienteCard';
 import ClienteFormEditModal from '../components/clienteFormEditModal';
-import { abrirGoogleMaps, OrdenarRutaPorDirecciones } from '../apis/OrdenarRutaPorDirecciones';
+import { abrirGoogleMaps } from '../apis/OrdenarRutaPorDirecciones';
 import { Colors, LocationsConstants } from '../types/const';
 import { RouteOptimizer } from '../apis/RouteOptimizerOptions';
+import { CrossPlatformDatePicker } from '../components/CrossPlatformDatePicker';
 
 export default function MainScreen() {
   const [clientes, setClientes] = useState<ClienteBDD[]>([]);
@@ -32,7 +32,6 @@ export default function MainScreen() {
   const [editandoCliente, setEditandoCliente] = useState<ClienteBDD | null>(null);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const scheme = useColorScheme();
   const isDark = scheme === 'dark';
@@ -99,7 +98,6 @@ const actualizarClienteLocal = (clienteActualizado: ClienteBDD) => {
 
 async function sortClients(){
   setIsRefreshing(true);
-  // let coordenadas: { latitude: number, longitude: number }[] = [];
 
   let clientesAux: ClienteBDD[] = clientes.filter(
     c => c.estado !== 'Instalado' && c.estado !== 'Ausente'
@@ -108,37 +106,8 @@ async function sortClients(){
   let clientesInstalados = clientes.filter(
     c => c.estado === 'Instalado' || c.estado === 'Ausente'
   );
-  
-  // clientesAux.forEach(cliente => {
-  //   coordenadas.push({
-  //     latitude: cliente.latitude,
-  //     longitude: cliente.longitude
-  //   });
-  // });
 
   let clientesOrdenados = await optimizer.optimize(clientesAux, startLocation, endLocation);
-
-  //let locations = await OrdenarRutaPorDirecciones(coordenadas, startLocation,endLocation);
-
-  // if (!locations) {
-  //   console.error("No se pudo obtener la ruta");
-  //   setIsRefreshing(false);
-  //   return;
-  // }
-  // let { waypoints } = locations;
-
-  // clientesAux.forEach((cliente, index) => {
-  //   const wp = waypoints[index];
-  //   if (wp) {
-  //     cliente.order = wp.waypoint_index;
-  //   }
-  // });
-
-  // let clientesOrdenados = clientesAux.sort((a, b) => {
-  //   let orderA = a.order ?? 0;
-  //   let orderB = b.order ?? 0;
-  //   return orderA - orderB;
-  // });
 
   let clientesFinales = [...clientesOrdenados, ...clientesInstalados];
 
@@ -187,20 +156,11 @@ async function openMapFunction(){
         >
           <Ionicons name="footsteps-outline" size={30} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.dateButton}
-          onPress={() => setShowDatePicker(true)}
-        >
-          <Text style={[styles.dateText, isDark && styles.dateTextDark]}>
-            {selectedDate.toLocaleDateString()}
-          </Text>
-          <Ionicons
-            name="calendar-outline"
-            size={20}
-            color={isDark ? '#fff' : '#333'}
-            style={{ marginLeft: 8 }}
-          />
-        </TouchableOpacity>
+        <CrossPlatformDatePicker
+          date={selectedDate}
+          onConfirm={(date) => setSelectedDate(date)}
+          isDark={isDark}
+        />
       </View>
 
       {/* Lista de clientes */}
@@ -257,16 +217,6 @@ async function openMapFunction(){
         }}
         />
 
-      {/* DatePicker Modal */}
-      <DateTimePickerModal
-        isVisible={showDatePicker}
-        mode="date"
-        onConfirm={(date) => {
-          setShowDatePicker(false);
-          setSelectedDate(date);
-        }}
-        onCancel={() => setShowDatePicker(false)}
-      />
       {isRefreshing && (
         <View style={styles.overlay}>
           <ActivityIndicator size="large" color="#fff" />
@@ -285,21 +235,18 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: '600', color: '#333' },
   titleNum: { fontSize: 20, fontWeight: '600', color: '#333' },
   titleDark: { color: '#f5f5f5' },
-  dateButton: { flexDirection: 'row', alignItems: 'center' },
-  dateText: { fontSize: 16, color: '#333' },
-  dateTextDark: { color: '#eee' },
   loaderWrap: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   list: { padding: 16, paddingBottom: 100 },
   actions: { position: 'absolute', bottom: 30, right: 20, flexDirection: 'row' },
   actionBtn: { width: 56, height: 56, borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginLeft: 12, elevation: 4, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
-mapBtn: { backgroundColor:  Colors.primary},    // Marrón medio oscuro, cálido
-sortBtn: { backgroundColor: Colors.primary },   // Marrón más claro, pastel elegante
-addBtn: { backgroundColor: Colors.secondary },    // Marrón suave pastel
+  mapBtn: { backgroundColor:  Colors.primary},
+  sortBtn: { backgroundColor: Colors.primary },
+  addBtn: { backgroundColor: Colors.secondary },
   overlay: {
-    ...StyleSheet.absoluteFillObject, // ocupa toda la pantalla
-    backgroundColor: 'rgba(0,0,0,0.5)', // semitransparente
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1000, // asegura que esté encima
+    zIndex: 1000,
   },
 });

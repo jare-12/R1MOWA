@@ -12,12 +12,12 @@ import {
   KeyboardAvoidingView,
   useColorScheme,
 } from 'react-native';
-import * as Location from 'expo-location';
 import { Picker } from '@react-native-picker/picker';
 import { ClienteBDD } from '../types/types';
 import { addClienteToSupabase } from '../services/supabase';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Colors } from '../types/const';
+import { CrossPlatformDatePicker } from './CrossPlatformDatePicker';
+import { geocodearDireccion } from '../services/geocoding';
 
 interface ClienteFormModalProps {
   visible: boolean;
@@ -38,32 +38,9 @@ export default function ClienteFormModal({
   const [disponibilidad, setDisponibilidad] = useState<'Mañana' | 'Tarde' | 'NC'>('Mañana');
   const [estimacion, setEstimacion] = useState<string>('');
   const [fecha, setFecha] = useState<Date>(new Date());
-  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const scheme = useColorScheme();
   const isDark = scheme === 'dark';
-  const geocodearDireccion = async (
-  fullAddress: string
-): Promise<{ latitude: number; longitude: number }> => {
-
-  // 1️⃣ Solicitar permisos
-  const { status } = await Location.requestForegroundPermissionsAsync();
-  if (status !== 'granted') {
-    throw new Error('Permiso para acceder a la ubicación denegado');
-  }
-
-  // 2️⃣ Geocodificar la dirección
-  const resultados = await Location.geocodeAsync(fullAddress);
-
-  if (!resultados || resultados.length === 0) {
-    throw new Error('No se pudo geocodificar la dirección');
-  }
-
-  return {
-    latitude: resultados[0].latitude,
-    longitude: resultados[0].longitude,
-  };
-};
 
   const handleEnviarCliente = async () => {
     if (
@@ -84,10 +61,6 @@ export default function ClienteFormModal({
     setLoading(true);
 
     try {
-      const fullAddress = direccionExtra.trim()
-        ? `${direccion.trim()}, ${direccionExtra.trim()}`
-        : direccion.trim();
-
       const { latitude, longitude } = await geocodearDireccion(direccion);
 
       const nuevoCliente: ClienteBDD = {
@@ -126,7 +99,6 @@ export default function ClienteFormModal({
   };
 
   const handleConfirmDate = (selectedDate: Date) => {
-    setShowDatePicker(false);
     setFecha(selectedDate);
   };
 
@@ -203,29 +175,13 @@ export default function ClienteFormModal({
 
             <View style={styles.formGroup}>
               <Text style={styles.label}>Fecha</Text>
-              <TouchableOpacity
-                style={styles.input}
-                onPress={() => setShowDatePicker(true)}
-                disabled={loading}
-              >
-                <Text>
-                  {fecha.toLocaleDateString('es-ES', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                  })}
-                </Text>
-              </TouchableOpacity>
+              <CrossPlatformDatePicker
+                date={fecha}
+                buttonStyle={styles.input}
+                onConfirm={handleConfirmDate}
+                isDark={isDark}
+              />
             </View>
-
-            <DateTimePickerModal
-              isVisible={showDatePicker}
-              mode="date"
-              onConfirm={handleConfirmDate}
-              textColor = {isDark ? '#fff' : '#000000ff'}
-              onCancel={() => setShowDatePicker(false)}
-            />
-
             <View style={styles.formGroup}>
               <Text style={styles.label}>
                 Disponibilidad (Mañana / Tarde / Cualquiera)

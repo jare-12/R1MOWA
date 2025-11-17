@@ -7,8 +7,8 @@ export function crearCuerpoRouteOptimizationApi(clientes: ClienteBDD[]) {
     deliveries: [
       {
         arrivalLocation: {
-          latitude: cliente.latitud,
-          longitude: cliente.longitud,
+          latitude: cliente.latitude,
+          longitude: cliente.longitude,
         },
         duration: `${parseInt(cliente.estimacion || '10', 10) * 60}s`,
         timeWindows: [

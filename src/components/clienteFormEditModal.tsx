@@ -12,12 +12,12 @@ import {
   KeyboardAvoidingView,
   useColorScheme,
 } from 'react-native';
-import * as Location from 'expo-location';
 import { Picker } from '@react-native-picker/picker';
 import { ClienteBDD } from '../types/types';
 import { updateClienteInSupabase } from '../services/supabase';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Colors } from '../types/const';
+import { CrossPlatformDatePicker } from './CrossPlatformDatePicker';
+import { geocodearDireccion } from '../services/geocoding';
 
 interface ClienteFormModalProps {
   visible: boolean;
@@ -41,22 +41,9 @@ export default function ClienteFormEditModal({
   const [disponibilidad, setDisponibilidad] = useState<'Mañana' | 'Tarde' | 'NC'>('Mañana');
   const [estimacion, setEstimacion] = useState<string>("");
   const [fecha, setFecha] = useState<Date>(new Date());
-  const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const scheme = useColorScheme();
   const isDark = scheme === 'dark';
-  const geocodearDireccion = async (
-    fullAddress: string
-  ): Promise<{ latitude: number; longitude: number }> => {
-    const resultados = await Location.geocodeAsync(fullAddress);
-    if (!resultados || resultados.length === 0) {
-      throw new Error('No se pudo geocodificar la dirección');
-    }
-    return {
-      latitude: resultados[0].latitude,
-      longitude: resultados[0].longitude,
-    };
-  };
   
   useEffect(() => {
     if (cliente) {
@@ -91,10 +78,7 @@ export default function ClienteFormEditModal({
     setLoading(true);
 
     try {
-      const fullAddress = direccionExtra.trim()
-        ? `${direccion.trim()}, ${direccionExtra.trim()}`
-        : direccion.trim();
-      const { latitude, longitude } = await geocodearDireccion(fullAddress);
+      const { latitude, longitude } = await geocodearDireccion(direccion);
 
       const ClienteActualizado: ClienteBDD = {
         estado: estado,
@@ -135,7 +119,6 @@ export default function ClienteFormEditModal({
   };
 
   const handleConfirmDate = (selectedDate: Date) => {
-    setShowDatePicker(false);
     setFecha(selectedDate);
   };
 
@@ -212,29 +195,13 @@ export default function ClienteFormEditModal({
 
             <View style={styles.formGroup}>
               <Text style={styles.label}>Fecha</Text>
-              <TouchableOpacity
-                style={styles.input}
-                onPress={() => {setShowDatePicker(true); console.log("pulsado", showDatePicker)}}
-                disabled={loading}
-              >
-                <Text>
-                  {fecha.toLocaleDateString('es-ES', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                  })}
-                </Text>
-              </TouchableOpacity>
+              <CrossPlatformDatePicker
+                date={fecha}
+                buttonStyle={styles.input}
+                onConfirm={(date) => handleConfirmDate(date)}
+                isDark={isDark}
+              />
             </View>
-
-            <DateTimePickerModal
-              isVisible={showDatePicker}
-              mode="date"
-              textColor = {isDark ? '#fff' : '#000000ff'}
-              onConfirm={handleConfirmDate}
-              onCancel={() => setShowDatePicker(false)}
-            />
-
             <View style={styles.formGroup}>
               <Text style={styles.label}>
                 Disponibilidad (Mañana / Tarde / Cualquiera)
